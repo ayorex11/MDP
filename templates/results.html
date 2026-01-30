@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - MDP Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <h1>Cyber-Attack Analysis Results</h1>
+            <p>MDP-based prediction and optimal defense recommendation</p>
+        </header>
+
+        <div class="risk-badge risk-{{ risk_level.lower() }}">
+            <span class="risk-label">Risk Level:</span>
+            <span class="risk-value">{{ risk_level }}</span>
+        </div>
+
+        <div class="results-grid">
+            <div class="info-card">
+                <h3>📊 Current State</h3>
+                <p class="info-value">{{ current_state.replace('_', ' ') }}</p>
+                <p class="info-description">Based on traffic: {{ traffic }} req/s, indicators: {{ suspicious_indicators }}</p>
+            </div>
+
+            <div class="info-card highlight">
+                <h3>🎯 Recommended Action</h3>
+                <p class="info-value action-value">{{ optimal_action.replace('_', ' ') }}</p>
+                <p class="info-description">Optimal defense strategy computed by MDP</p>
+            </div>
+
+            <div class="info-card">
+                <h3>💎 State Value</h3>
+                <p class="info-value">{{ state_value }}</p>
+                <p class="info-description">Expected cumulative reward from this state</p>
+            </div>
+
+            <div class="info-card">
+                <h3>⚠️ Risk Assessment</h3>
+                <p class="info-value">{{ risk_level }}</p>
+                <p class="info-description">Probability of high-threat states</p>
+            </div>
+        </div>
+
+        <div class="visualization-section">
+            <h2>Predictive Analytics</h2>
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ chart_image }}" alt="MDP Analysis Charts" class="chart-image">
+            </div>
+        </div>
+
+        <div class="next-states-section">
+            <h2>Predicted Next States</h2>
+            <p class="section-description">
+                Probability distribution of system states after taking the recommended action
+            </p>
+            <div class="states-list">
+                {% for state, probability in next_states.items() %}
+                <div class="state-item">
+                    <span class="state-name">{{ state.replace('_', ' ') }}</span>
+                    <div class="probability-bar-container">
+                        <div class="probability-bar" style="width: {{ (probability * 100)|round(1) }}%"></div>
+                    </div>
+                    <span class="state-probability">{{ (probability * 100)|round(1) }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="actions-section">
+            <a href="{{ url_for('predict') }}" class="btn btn-primary">New Prediction</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

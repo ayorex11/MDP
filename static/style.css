@@ -1,0 +1,553 @@
+/* ===== CSS Reset & Base Styles ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===== Hero Section (Home Page) ===== */
+.hero {
+  text-align: center;
+  padding: 60px 20px 40px;
+  color: white;
+}
+
+.main-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  font-weight: 300;
+  opacity: 0.95;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* ===== Description Section ===== */
+.description {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin: 30px 0;
+  animation: fadeIn 1s ease-out;
+}
+
+.description p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #555;
+}
+
+/* ===== Features Section ===== */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin: 40px 0;
+}
+
+.feature-card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  animation: fadeInUp 1s ease-out;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.feature-card h3 {
+  font-size: 1.4rem;
+  color: #667eea;
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* ===== CTA Section ===== */
+.cta-section {
+  text-align: center;
+  margin: 50px 0;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-block;
+  padding: 15px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+  background: #f8f9fa;
+  transform: translateY(-3px);
+}
+
+/* ===== Page Header ===== */
+.page-header {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  color: #667eea;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.page-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* ===== Form Container ===== */
+.form-container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.prediction-form {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 30px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.help-text {
+  font-size: 0.9rem;
+  color: #777;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* ===== Examples Section ===== */
+.examples-section {
+  margin: 40px 0;
+  padding: 25px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.examples-section h3 {
+  color: #667eea;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.examples-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.example-card {
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 4px solid;
+}
+
+.example-card h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.example-card p {
+  font-size: 0.9rem;
+  margin: 5px 0;
+}
+
+.example-normal {
+  background: #e8f5e9;
+  border-color: #4caf50;
+}
+
+.example-suspicious {
+  background: #fff3e0;
+  border-color: #ff9800;
+}
+
+.example-attack {
+  background: #ffebee;
+  border-color: #f44336;
+}
+
+/* ===== Form Actions ===== */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+/* ===== Risk Badge ===== */
+.risk-badge {
+  text-align: center;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.risk-low {
+  background: #4caf50;
+  color: white;
+}
+
+.risk-medium {
+  background: #ff9800;
+  color: white;
+}
+
+.risk-high {
+  background: #f44336;
+  color: white;
+}
+
+.risk-label {
+  margin-right: 10px;
+}
+
+/* ===== Results Grid ===== */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.info-card {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+}
+
+.info-card.highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.info-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #667eea;
+}
+
+.info-card.highlight h3 {
+  color: white;
+}
+
+.info-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.info-card.highlight .info-value {
+  color: white;
+}
+
+.action-value {
+  text-transform: capitalize;
+}
+
+.info-description {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.info-card.highlight .info-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== Visualization Section ===== */
+.visualization-section {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.visualization-section h2 {
+  color: #667eea;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chart-container {
+  text-align: center;
+  overflow-x: auto;
+}
+
+.chart-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* ===== Next States Section ===== */
+.next-states-section {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.next-states-section h2 {
+  color: #667eea;
+  margin-bottom: 10px;
+}
+
+.section-description {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+}
+
+.states-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.state-item {
+  display: grid;
+  grid-template-columns: 180px 1fr 80px;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.state-item:hover {
+  background: #e9ecef;
+}
+
+.state-name {
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.probability-bar-container {
+  background: #ddd;
+  height: 25px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.probability-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.5s ease;
+  border-radius: 12px;
+}
+
+.state-probability {
+  font-weight: 700;
+  color: #667eea;
+  text-align: right;
+}
+
+/* ===== Actions Section ===== */
+.actions-section {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 2.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+  .form-container {
+    padding: 25px;
+  }
+
+  .examples-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .state-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .state-name,
+  .state-probability {
+    text-align: left;
+  }
+
+  .form-actions,
+  .actions-section {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .info-value {
+    font-size: 1.5rem;
+  }
+}

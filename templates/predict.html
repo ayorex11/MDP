@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Cyber-Attack - MDP Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <h1>Cyber-Attack Prediction</h1>
+            <p>Enter network metrics to analyze threat level and get optimal defense recommendations</p>
+        </header>
+
+        <div class="form-container">
+            <form method="POST" action="{{ url_for('results') }}" class="prediction-form">
+                <div class="form-group">
+                    <label for="traffic">Network Traffic Level (req/s)</label>
+                    <input 
+                        type="number" 
+                        id="traffic" 
+                        name="traffic" 
+                        min="0" 
+                        max="10000" 
+                        value="500" 
+                        required
+                        class="form-input"
+                    >
+                    <p class="help-text">
+                        Number of requests per second. Normal traffic is typically 100-1000 req/s. 
+                        Suspicious activity often exceeds 2000 req/s. Attack traffic can reach 5000-10000 req/s.
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="suspicious_indicators">Suspicious Indicators</label>
+                    <input 
+                        type="number" 
+                        id="suspicious_indicators" 
+                        name="suspicious_indicators" 
+                        min="0" 
+                        max="50" 
+                        value="0" 
+                        required
+                        class="form-input"
+                    >
+                    <p class="help-text">
+                        Count of anomalous patterns detected (e.g., unusual ports, malformed packets, failed auth attempts). 
+                        0 = clean traffic, 1-4 = minor concerns, 5-9 = suspicious, 10+ = likely attack.
+                    </p>
+                </div>
+
+                <div class="examples-section">
+                    <h3>Example Scenarios</h3>
+                    <div class="examples-grid">
+                        <div class="example-card example-normal">
+                            <h4>Normal Operation</h4>
+                            <p><strong>Traffic:</strong> 500 req/s</p>
+                            <p><strong>Indicators:</strong> 0</p>
+                        </div>
+                        <div class="example-card example-suspicious">
+                            <h4>Suspicious Activity</h4>
+                            <p><strong>Traffic:</strong> 2000 req/s</p>
+                            <p><strong>Indicators:</strong> 7</p>
+                        </div>
+                        <div class="example-card example-attack">
+                            <h4>Active Attack</h4>
+                            <p><strong>Traffic:</strong> 8000 req/s</p>
+                            <p><strong>Indicators:</strong> 15</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Analyze & Predict</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MDP Cyber-Attack Predictor</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header class="hero">
+        <h1 class="main-title">MDP Cyber-Attack Predictor</h1>
+        <p class="subtitle">
+          Intelligent Attack Prediction Using Markov Decision Processes
+        </p>
+      </header>
+
+      <section class="description">
+        <p>
+          Our advanced system leverages Markov Decision Processes (MDP) to
+          predict and prevent cyber-attacks in real-time. By analyzing network
+          traffic patterns and suspicious indicators, the system computes
+          optimal defensive actions using the Value Iteration algorithm. The MDP
+          framework evaluates all possible future states and recommends the best
+          course of action to maximize security while minimizing operational
+          costs.
+        </p>
+      </section>
+
+      <section class="features">
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3>Smart Prediction</h3>
+          <p>
+            Uses Value Iteration algorithm to compute optimal defense policies
+            across 6 security states
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Real-Time Analysis</h3>
+          <p>
+            Instantly analyzes network traffic and suspicious indicators to
+            determine current threat level
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Visual Analytics</h3>
+          <p>
+            Comprehensive visualizations showing state probabilities and action
+            Q-values for informed decisions
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3>Cost-Aware Defense</h3>
+          <p>
+            Balances security effectiveness with operational costs to recommend
+            economically optimal actions
+          </p>
+        </div>
+      </section>
+
+      <div class="cta-section">
+        <a href="{{ url_for('predict') }}" class="btn btn-primary"
+          >Start Prediction</a
+        >
+      </div>
+    </div>
+  </body>
+</html>
