@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - MDP Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        <header class="page-header">
+            <h1>👤 User Profile</h1>
+            <p>Manage your account and view your statistics</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="profile-grid">
+            <div class="profile-card">
+                <h2>Account Information</h2>
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="info-label">Username:</span>
+                        <span class="info-value">{{ current_user.username }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ current_user.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Member Since:</span>
+                        <span class="info-value">{{ current_user.created_at.strftime('%B %d, %Y') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <h2>Your Statistics</h2>
+                <div class="stats-summary">
+                    <div class="stat-item">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-details">
+                            <div class="stat-value">{{ stats.total_analyzed if stats else 0 }}</div>
+                            <div class="stat-label">Total Records Analyzed</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📁</div>
+                        <div class="stat-details">
+                            <div class="stat-value">{{ analysis_count }}</div>
+                            <div class="stat-label">Files Uploaded</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ url_for('statistics') }}" class="btn btn-secondary btn-block">View Detailed Statistics</a>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <h2>Recent Activity</h2>
+            {% if recent_analyses %}
+                <div class="table-container">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Records</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for analysis in recent_analyses %}
+                            <tr>
+                                <td>{{ analysis.filename }}</td>
+                                <td>{{ analysis.total_records }}</td>
+                                <td>{{ analysis.upload_timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_analysis', analysis_id=analysis.id) }}" class="btn btn-sm">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{{ url_for('history') }}" class="btn btn-secondary">View All History</a>
+            {% else %}
+                <p class="no-data-text">No analyses yet. <a href="{{ url_for('upload') }}">Upload your first file</a></p>
+            {% endif %}
+        </div>
+
+        <div class="actions-section">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Details - MDP Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        <header class="page-header">
+            <h1>📊 Analysis Details</h1>
+            <p>{{ analysis.filename }} - {{ analysis.upload_timestamp.strftime('%B %d, %Y at %H:%M') }}</p>
+        </header>
+
+        <div class="stats-summary">
+            <div class="stat-card">
+                <h3>Total Records</h3>
+                <p class="stat-value">{{ analysis.total_records }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Attack Types</h3>
+                <p class="stat-value">{{ attack_counts|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Normal Traffic</h3>
+                <p class="stat-value">{{ attack_counts.get('Normal', 0) }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Attacks Detected</h3>
+                <p class="stat-value">{{ analysis.total_records - attack_counts.get('Normal', 0) }}</p>
+            </div>
+        </div>
+
+        <div class="visualization-section">
+            <h2>Attack Type Distribution</h2>
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ chart_image }}" alt="Attack Type Distribution" class="chart-image">
+            </div>
+        </div>
+
+        <div class="results-table-section">
+            <h2>Detailed Predictions (First 100 Records)</h2>
+            <div class="table-container">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>MDP State</th>
+                            <th>Attack Type</th>
+                            <th>Recommended Action</th>
+                            <th>State Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in predictions[:100] %}
+                        <tr class="{% if pred.attack_type != 'Normal' %}attack-row{% endif %}">
+                            <td>{{ pred.record_index }}</td>
+                            <td><span class="badge badge-state">{{ pred.mdp_state.replace('_', ' ') }}</span></td>
+                            <td><span class="badge badge-{{ 'normal' if pred.attack_type == 'Normal' else 'attack' }}">{{ pred.attack_type }}</span></td>
+                            <td><span class="badge badge-action">{{ pred.recommended_action.replace('_', ' ') }}</span></td>
+                            <td>{{ pred.state_value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if predictions|length > 100 %}
+            <p class="table-note">Showing first 100 of {{ predictions|length }} records</p>
+            {% endif %}
+        </div>
+
+        <div class="actions-section">
+            <a href="{{ url_for('history') }}" class="btn btn-secondary">Back to History</a>
+            <a href="{{ url_for('upload') }}" class="btn btn-primary">New Analysis</a>
+        </div>
+    </div>
+</body>
+</html>

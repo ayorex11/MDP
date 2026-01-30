@@ -7,7 +7,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    {% include 'navbar.html' %}
+    
     <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
         <header class="page-header">
             <h1>Cyber-Attack Prediction</h1>
             <p>Enter network metrics to analyze threat level and get optimal defense recommendations</p>

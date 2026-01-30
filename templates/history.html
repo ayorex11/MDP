@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis History - MDP Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        <header class="page-header">
+            <h1>📜 Analysis History</h1>
+            <p>View all your past network traffic analyses</p>
+        </header>
+
+        {% if analyses %}
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <h3>Total Analyses</h3>
+                    <p class="stat-value">{{ analyses|length }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Records</h3>
+                    <p class="stat-value">{{ total_records }}</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Filename</th>
+                            <th>Records Analyzed</th>
+                            <th>Upload Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for analysis in analyses %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ analysis.filename }}</td>
+                            <td>{{ analysis.total_records }}</td>
+                            <td>{{ analysis.upload_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                <a href="{{ url_for('view_analysis', analysis_id=analysis.id) }}" class="btn btn-sm btn-primary">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="no-data-message">
+                <div class="no-data-icon">📊</div>
+                <h2>No Analysis History</h2>
+                <p>You haven't uploaded any files yet. Start by uploading NSL-KDD data for analysis.</p>
+                <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload Data</a>
+            </div>
+        {% endif %}
+
+        <div class="actions-section">
+            <a href="{{ url_for('upload') }}" class="btn btn-primary">New Analysis</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload NSL-KDD Data - MDP Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <header class="page-header">
+            <h1>Upload Network Traffic Data</h1>
+            <p>Upload NSL-KDD format data for batch analysis and attack prediction</p>
+        </header>
+
+        <div class="upload-container">
+            <form method="POST" action="{{ url_for('analyze') }}" enctype="multipart/form-data" class="upload-form">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📁</div>
+                    <h3>Drag & Drop File Here</h3>
+                    <p>or click to browse</p>
+                    <input type="file" name="file" id="fileInput" accept=".txt,.csv" required>
+                </div>
+
+                <div class="upload-info">
+                    <h3>Supported Formats</h3>
+                    <ul>
+                        <li>NSL-KDD TXT format (KDDTrain+.TXT, KDDTest+.TXT)</li>
+                        <li>CSV files with 41 network features</li>
+                        <li>Maximum file size: 50MB</li>
+                    </ul>
+
+                    <h3>Sample Data</h3>
+                    <p>Use the NSL-KDD test file located in the <code>data/</code> directory (KDDTest+.TXT or KDDTrain+.TXT)</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Analyze Data</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            updateFileName();
+        });
+
+        fileInput.addEventListener('change', updateFileName);
+
+        function updateFileName() {
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                uploadZone.querySelector('h3').textContent = fileName;
+                uploadZone.querySelector('p').textContent = 'File selected - click "Analyze Data" to proceed';
+            }
+        }
+    </script>
+</body>
+</html>

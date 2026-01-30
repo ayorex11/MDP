@@ -1,13 +1,35 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 import numpy as np
+import pandas as pd
 import matplotlib
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import io
 import base64
 import os
+from werkzeug.utils import secure_filename
+from ml_model import NSLKDDModel
+from models import db, User, Analysis, Prediction, UserStatistics
+from config import Config
 
 app = Flask(__name__)
+app.config.from_object(Config)
+
+# Initialize extensions
+db.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = 'Please log in to access this page.'
+login_manager.login_message_category = 'info'
+
+# Create upload directory
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 class MDPCyberDefense:
     """
@@ -185,32 +207,18 @@ class MDPCyberDefense:
         return self.state_rewards[next_state] + self.action_costs[action]
     
     def value_iteration(self):
-        """
-        Value Iteration Algorithm:
-        1. Initialize V(s) = 0 for all states
-        2. Repeat until convergence:
-            - For each state s:
-                - For each action a:
-                    - Q(s,a) = Σ P(s'|s,a) × (R(s,a,s') + γV(s'))
-                - V(s) = max_a Q(s,a)
-        3. Extract policy: π(s) = argmax_a Q(s,a)
-        """
+        """Value Iteration Algorithm"""
         iteration = 0
         while True:
             delta = 0
             V_old = self.V.copy()
             
-            # Update value for each state
             for state in self.states:
-                # Compute Q-values for all actions
                 q_values = {}
                 for action in self.actions:
                     q_value = 0
-                    
-                    # Get transition probabilities for this (state, action) pair
                     transitions = self.transitions.get((state, action), {})
                     
-                    # Q(s,a) = Σ P(s'|s,a) × (R(s,a,s') + γV(s'))
                     for next_state, prob in transitions.items():
                         reward = self.get_reward(state, action, next_state)
                         q_value += prob * (reward + self.gamma * V_old[next_state])
@@ -218,19 +226,17 @@ class MDPCyberDefense:
                     q_values[action] = q_value
                     self.Q[state][action] = q_value
                 
-                # V(s) = max_a Q(s,a)
                 if q_values:
                     self.V[state] = max(q_values.values())
                     delta = max(delta, abs(self.V[state] - V_old[state]))
             
             iteration += 1
             
-            # Check convergence
             if delta < self.threshold:
                 print(f"Value Iteration converged in {iteration} iterations")
                 break
         
-        # Extract optimal policy: π(s) = argmax_a Q(s,a)
+        # Extract optimal policy
         for state in self.states:
             self.policy[state] = max(self.Q[state], key=self.Q[state].get)
     
@@ -263,7 +269,7 @@ def determine_state(traffic, suspicious_indicators):
         return 'Low_Suspicious'
     elif suspicious_indicators < 10:
         return 'High_Suspicious'
-    else:  # suspicious_indicators >= 10
+    else:
         return 'Attack_Detected'
 
 def calculate_risk_level(next_states):
@@ -309,7 +315,6 @@ def generate_charts(next_states, q_values, optimal_action):
     
     plt.tight_layout()
     
-    # Convert to base64
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png', dpi=100, bbox_inches='tight')
     buffer.seek(0)
@@ -318,13 +323,203 @@ def generate_charts(next_states, q_values, optimal_action):
     
     return image_base64
 
+def generate_attack_distribution_chart(attack_counts):
+    """Generate attack type distribution pie chart"""
+    fig, ax = plt.subplots(figsize=(8, 6))
+    colors = ['#4CAF50', '#F44336', '#FF9800', '#2196F3', '#9C27B0']
+    ax.pie(attack_counts.values(), labels=attack_counts.keys(), autopct='%1.1f%%',
+           colors=colors[:len(attack_counts)], startangle=90)
+    ax.set_title('Attack Type Distribution', fontsize=14, fontweight='bold')
+    
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', dpi=100, bbox_inches='tight')
+    buffer.seek(0)
+    chart_image = base64.b64encode(buffer.read()).decode()
+    plt.close()
+    
+    return chart_image
+
 # Initialize and train MDP model at startup
 print("Training MDP model...")
 mdp = MDPCyberDefense(gamma=0.95, threshold=0.01)
 mdp.value_iteration()
 print("MDP model trained successfully!")
-print(f"State values: {mdp.V}")
-print(f"Optimal policy: {mdp.policy}")
+
+# Load ML models
+print("\nLoading NSL-KDD ML models...")
+ml_model = NSLKDDModel()
+try:
+    ml_model.load_models()
+    print("ML models loaded successfully!")
+except Exception as e:
+    print(f"Warning: Could not load ML models: {e}")
+    print("ML features will be disabled. Run 'python ml_model.py' to train models.")
+    ml_model = None
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+# ===== Authentication Routes =====
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """User registration"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        # Validation
+        if not username or not email or not password:
+            flash('All fields are required.', 'danger')
+            return redirect(url_for('register'))
+        
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return redirect(url_for('register'))
+        
+        # Strong password validation
+        if len(password) < 8:
+            flash('Password must be at least 8 characters long.', 'danger')
+            return redirect(url_for('register'))
+        
+        import re
+        if not re.search(r'[a-z]', password):
+            flash('Password must contain at least one lowercase letter.', 'danger')
+            return redirect(url_for('register'))
+        
+        if not re.search(r'[A-Z]', password):
+            flash('Password must contain at least one uppercase letter.', 'danger')
+            return redirect(url_for('register'))
+        
+        if not re.search(r'[0-9]', password):
+            flash('Password must contain at least one number.', 'danger')
+            return redirect(url_for('register'))
+        
+        if not re.search(r'[^a-zA-Z0-9]', password):
+            flash('Password must contain at least one special character.', 'danger')
+            return redirect(url_for('register'))
+        
+        # Check if user already exists
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists.', 'danger')
+            return redirect(url_for('register'))
+        
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered.', 'danger')
+            return redirect(url_for('register'))
+        
+        # Create new user
+        user = User(username=username, email=email)
+        user.set_password(password)
+        
+        # Create user statistics
+        stats = UserStatistics(user=user)
+        
+        db.session.add(user)
+        db.session.add(stats)
+        db.session.commit()
+        
+        flash('Registration successful! Please log in.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """User login"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = request.form.get('remember') == 'yes'
+        
+        # Find user by username or email
+        user = User.query.filter(
+            (User.username == username) | (User.email == username)
+        ).first()
+        
+        if user and user.check_password(password):
+            login_user(user, remember=remember)
+            flash(f'Welcome back, {user.username}!', 'success')
+            
+            # Redirect to next page or index
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
+        else:
+            flash('Invalid username/email or password.', 'danger')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    """User logout"""
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('index'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    """User profile page"""
+    stats = current_user.statistics
+    analysis_count = Analysis.query.filter_by(user_id=current_user.id).count()
+    recent_analyses = Analysis.query.filter_by(user_id=current_user.id)\
+        .order_by(Analysis.upload_timestamp.desc()).limit(5).all()
+    
+    return render_template('profile.html',
+                         stats=stats,
+                         analysis_count=analysis_count,
+                         recent_analyses=recent_analyses)
+
+@app.route('/history')
+@login_required
+def history():
+    """Analysis history page"""
+    analyses = Analysis.query.filter_by(user_id=current_user.id)\
+        .order_by(Analysis.upload_timestamp.desc()).all()
+    
+    total_records = sum(a.total_records for a in analyses)
+    
+    return render_template('history.html',
+                         analyses=analyses,
+                         total_records=total_records)
+
+@app.route('/analysis/<int:analysis_id>')
+@login_required
+def view_analysis(analysis_id):
+    """View specific analysis details"""
+    analysis = Analysis.query.get_or_404(analysis_id)
+    
+    # Ensure user owns this analysis
+    if analysis.user_id != current_user.id:
+        flash('You do not have permission to view this analysis.', 'danger')
+        return redirect(url_for('history'))
+    
+    predictions = Prediction.query.filter_by(analysis_id=analysis_id).all()
+    
+    # Calculate attack counts
+    attack_counts = {}
+    for pred in predictions:
+        attack_counts[pred.attack_type] = attack_counts.get(pred.attack_type, 0) + 1
+    
+    # Generate chart
+    chart_image = generate_attack_distribution_chart(attack_counts)
+    
+    return render_template('view_analysis.html',
+                         analysis=analysis,
+                         predictions=predictions,
+                         attack_counts=attack_counts,
+                         chart_image=chart_image)
+
+# ===== Main Application Routes =====
 
 @app.route('/')
 def index():
@@ -332,28 +527,22 @@ def index():
     return render_template('index.html')
 
 @app.route('/predict')
+@login_required
 def predict():
     """Prediction form page"""
     return render_template('predict.html')
 
 @app.route('/results', methods=['POST'])
+@login_required
 def results():
     """Results page with MDP analysis"""
     try:
-        # Get form data
         traffic = int(request.form.get('traffic', 500))
         suspicious_indicators = int(request.form.get('suspicious_indicators', 0))
         
-        # Determine current state
         current_state = determine_state(traffic, suspicious_indicators)
-        
-        # Get MDP prediction
         prediction = mdp.predict(current_state)
-        
-        # Calculate risk level
         risk_level = calculate_risk_level(prediction['next_states'])
-        
-        # Generate charts
         chart_image = generate_charts(
             prediction['next_states'],
             prediction['q_values'],
@@ -373,7 +562,191 @@ def results():
         )
     except Exception as e:
         print(f"Error in results route: {e}")
+        flash('An error occurred during analysis.', 'danger')
         return redirect(url_for('predict'))
+
+@app.route('/upload')
+@login_required
+def upload():
+    """File upload page"""
+    return render_template('upload.html')
+
+@app.route('/analyze', methods=['POST'])
+@login_required
+def analyze():
+    """Analyze uploaded NSL-KDD data"""
+    if ml_model is None:
+        flash('ML models not loaded. Please contact administrator.', 'danger')
+        return redirect(url_for('upload'))
+    
+    try:
+        if 'file' not in request.files:
+            flash('No file uploaded.', 'danger')
+            return redirect(url_for('upload'))
+        
+        file = request.files['file']
+        if file.filename == '':
+            flash('No file selected.', 'danger')
+            return redirect(url_for('upload'))
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            
+            # Load and analyze data
+            df = ml_model.load_nslkdd_data(filepath)
+            
+            # Limit to first 1000 records for performance
+            if len(df) > 1000:
+                df = df.head(1000)
+            
+            # Get predictions
+            predictions = ml_model.predict_from_features(df)
+            
+            # Create analysis record
+            analysis = Analysis(
+                user_id=current_user.id,
+                filename=filename,
+                total_records=len(df)
+            )
+            db.session.add(analysis)
+            db.session.flush()  # Get analysis ID
+            
+            # Store predictions and prepare results
+            results = []
+            prediction_records = []
+            
+            for i in range(len(df)):
+                state = predictions['states'][i]
+                attack_type = predictions['attack_types'][i]
+                mdp_pred = mdp.predict(state)
+                
+                # Create prediction record
+                pred_record = Prediction(
+                    analysis_id=analysis.id,
+                    record_index=i + 1,
+                    mdp_state=state,
+                    attack_type=attack_type,
+                    recommended_action=mdp_pred['optimal_action'],
+                    state_value=round(mdp_pred['state_value'], 2)
+                )
+                prediction_records.append(pred_record)
+                
+                results.append({
+                    'index': i + 1,
+                    'state': state,
+                    'attack_type': attack_type,
+                    'recommended_action': mdp_pred['optimal_action'],
+                    'state_value': round(mdp_pred['state_value'], 2)
+                })
+            
+            # Bulk insert predictions
+            db.session.bulk_save_objects(prediction_records)
+            
+            # Update user statistics
+            if not current_user.statistics:
+                stats = UserStatistics(user_id=current_user.id)
+                db.session.add(stats)
+            else:
+                stats = current_user.statistics
+            
+            stats.update_statistics(results)
+            
+            db.session.commit()
+            
+            # Generate attack type distribution chart
+            attack_counts = {}
+            for r in results:
+                attack_counts[r['attack_type']] = attack_counts.get(r['attack_type'], 0) + 1
+            
+            chart_image = generate_attack_distribution_chart(attack_counts)
+            
+            flash(f'Successfully analyzed {len(results)} records!', 'success')
+            
+            return render_template(
+                'analyze.html',
+                results=results[:100],
+                total_records=len(results),
+                attack_counts=attack_counts,
+                chart_image=chart_image
+            )
+            
+    except Exception as e:
+        print(f"Error in analyze route: {e}")
+        import traceback
+        traceback.print_exc()
+        db.session.rollback()
+        flash(f'Error analyzing file: {str(e)}', 'danger')
+        return redirect(url_for('upload'))
+
+@app.route('/statistics')
+@login_required
+def statistics():
+    """Statistics dashboard"""
+    stats = current_user.statistics
+    
+    if not stats or stats.total_analyzed == 0:
+        return render_template('statistics.html', no_data=True)
+    
+    # Generate visualizations
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(14, 10))
+    
+    # Attack type distribution
+    if stats.attack_counts:
+        colors = ['#4CAF50', '#F44336', '#FF9800', '#2196F3', '#9C27B0', '#795548']
+        ax1.pie(stats.attack_counts.values(), 
+                labels=stats.attack_counts.keys(),
+                autopct='%1.1f%%', colors=colors[:len(stats.attack_counts)],
+                startangle=90)
+        ax1.set_title('Attack Type Distribution', fontsize=12, fontweight='bold')
+    
+    # State distribution
+    if stats.state_counts:
+        states = list(stats.state_counts.keys())
+        counts = list(stats.state_counts.values())
+        ax2.bar(states, counts, color='#667eea', alpha=0.8)
+        ax2.set_title('MDP State Distribution', fontsize=12, fontweight='bold')
+        ax2.set_xlabel('State')
+        ax2.set_ylabel('Count')
+        ax2.tick_params(axis='x', rotation=45)
+    
+    # Recommended actions
+    if stats.action_counts:
+        actions = list(stats.action_counts.keys())
+        counts = list(stats.action_counts.values())
+        ax3.bar(actions, counts, color='#764ba2', alpha=0.8)
+        ax3.set_title('Recommended Actions Frequency', fontsize=12, fontweight='bold')
+        ax3.set_xlabel('Action')
+        ax3.set_ylabel('Count')
+        ax3.tick_params(axis='x', rotation=45)
+    
+    # Attack detection rate
+    total = stats.total_analyzed
+    normal_count = stats.attack_counts.get('Normal', 0)
+    attack_count = total - normal_count
+    
+    ax4.pie([normal_count, attack_count], labels=['Normal', 'Attack'],
+            autopct='%1.1f%%', colors=['#4CAF50', '#F44336'], startangle=90)
+    ax4.set_title('Attack Detection Rate', fontsize=12, fontweight='bold')
+    
+    plt.tight_layout()
+    
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', dpi=100, bbox_inches='tight')
+    buffer.seek(0)
+    stats_chart = base64.b64encode(buffer.read()).decode()
+    plt.close()
+    
+    return render_template(
+        'statistics.html',
+        total_analyzed=stats.total_analyzed,
+        attack_counts=stats.attack_counts,
+        state_counts=stats.state_counts,
+        action_counts=stats.action_counts,
+        stats_chart=stats_chart,
+        no_data=False
+    )
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
