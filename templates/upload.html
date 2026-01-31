@@ -10,15 +10,8 @@
     {% include 'navbar.html' %}
     
     <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <!-- Hidden flash messages for toast notifications -->
+        <div id="flash-messages" data-messages='{{ get_flashed_messages(with_categories=true)|tojson }}' style="display: none;"></div>
         
         <header class="page-header">
             <h1>Upload Network Traffic Data</h1>
@@ -26,7 +19,7 @@
         </header>
 
         <div class="upload-container">
-            <form method="POST" action="{{ url_for('analyze') }}" enctype="multipart/form-data" class="upload-form">
+            <form method="POST" action="{{ url_for('analyze') }}" enctype="multipart/form-data" class="upload-form" id="uploadForm">
                 <div class="upload-zone" id="uploadZone">
                     <div class="upload-icon">📁</div>
                     <h3>Drag & Drop File Here</h3>
@@ -85,6 +78,17 @@
                 uploadZone.querySelector('p').textContent = 'File selected - click "Analyze Data" to proceed';
             }
         }
+
+        // Show loading state on form submission
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            if (fileInput.files.length > 0) {
+                showLoading('Analyzing file... This may take a moment.');
+            } else {
+                e.preventDefault();
+                notifications.error('Please select a file to upload.');
+            }
+        });
     </script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
 </body>
 </html>

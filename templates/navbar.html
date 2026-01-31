@@ -4,7 +4,13 @@
             🛡️ MDP Predictor
         </a>
         
-        <div class="nav-menu">
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <div class="nav-menu" id="navMenu">
             <a href="{{ url_for('predict') }}" class="nav-link">Quick Predict</a>
             <a href="{{ url_for('upload') }}" class="nav-link">Upload Data</a>
             <a href="{{ url_for('statistics') }}" class="nav-link">Statistics</a>
@@ -23,3 +29,33 @@
         </div>
     </div>
 </nav>
+
+<script>
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        
+        if (hamburger && navMenu) {
+            hamburger.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const isClickInside = hamburger.contains(event.target) || navMenu.contains(event.target);
+                if (!isClickInside && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                }
+            });
+            
+            // Close menu when clicking a link
+            const navLinks = navMenu.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navMenu.classList.remove('active');
+                });
+            });
+        }
+    });
+</script>

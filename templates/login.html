@@ -14,15 +14,8 @@
                 <p>Access your MDP Cyber-Attack Predictor account</p>
             </div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+            <!-- Hidden flash messages for toast notifications -->
+            <div id="flash-messages" data-messages='{{ get_flashed_messages(with_categories=true)|tojson }}' style="display: none;"></div>
 
             <form method="POST" action="{{ url_for('login') }}" class="auth-form">
                 <div class="form-group">
@@ -85,6 +78,7 @@
             }
         }
     </script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
 </body>
 </html>
 

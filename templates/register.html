@@ -14,15 +14,8 @@
                 <p>Create your MDP Cyber-Attack Predictor account</p>
             </div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+            <!-- Hidden flash messages for toast notifications -->
+            <div id="flash-messages" data-messages='{{ get_flashed_messages(with_categories=true)|tojson }}' style="display: none;"></div>
 
             <form method="POST" action="{{ url_for('register') }}" class="auth-form" id="registerForm">
                 <div class="form-group">
@@ -175,7 +168,7 @@
             }
         });
 
-        // Form submission validation
+        // Form submission validation with toast notifications
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             const password = passwordInput.value;
             const confirmPassword = confirmInput.value;
@@ -183,7 +176,8 @@
             // Check if passwords match
             if (password !== confirmPassword) {
                 e.preventDefault();
-                alert('Passwords do not match!');
+                notifications.error('Passwords do not match!');
+                showValidationError(confirmInput, 'Passwords must match');
                 return false;
             }
             
@@ -196,11 +190,16 @@
             
             if (!isLongEnough || !hasLower || !hasUpper || !hasNumber || !hasSpecial) {
                 e.preventDefault();
-                alert('Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
+                notifications.error('Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
+                showValidationError(passwordInput, 'Password does not meet requirements');
                 return false;
             }
+
+            // Show loading state
+            showLoading('Creating your account...');
         });
     </script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
 </body>
 </html>
 

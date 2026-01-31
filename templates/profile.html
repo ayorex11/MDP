@@ -15,15 +15,8 @@
             <p>Manage your account and view your statistics</p>
         </header>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <!-- Hidden flash messages for toast notifications -->
+        <div id="flash-messages" data-messages='{{ get_flashed_messages(with_categories=true)|tojson }}' style="display: none;"></div>
 
         <div class="profile-grid">
             <div class="profile-card">
@@ -103,5 +96,6 @@
             <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
 </body>
 </html>

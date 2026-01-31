@@ -10,15 +10,8 @@
     {% include 'navbar.html' %}
     
     <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <!-- Hidden flash messages for toast notifications -->
+        <div id="flash-messages" data-messages='{{ get_flashed_messages(with_categories=true)|tojson }}' style="display: none;"></div>
         
         <header class="page-header">
             <h1>Cyber-Attack Prediction</h1>
@@ -91,5 +84,6 @@
             </form>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
 </body>
 </html>
