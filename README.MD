@@ -6,7 +6,7 @@
 
 Intelligent cyber-attack prediction and defense recommendation system using Markov Decision Processes (MDPs) and Machine Learning.
 
-🔗 **Live Demo:** [cybermarkov.xyz](https://cybermarkov.xyz)
+🔗 **Live Demo:** [cybermarkov.xyz](https://www.cybermarkov.xyz/)
 
 ---
 
@@ -594,7 +594,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For questions or support:
 - Email: adewalemaxwell11@gmail.com
 - Project Repository: https://github.com/ayorex11/MDP
-- Live Demo: https://cybermarkov.xyz
+- Live Demo: https://www.cybermarkov.xyz/
 
 ---
 
@@ -613,4 +613,4 @@ This project was developed as the term paper for the Artificial Intelligence cou
 
 **⭐ Star this repository if you found it helpful!**
 
-**🔗 Live Demo:** [cybermarkov.xyz](https://cybermarkov.xyz)
+**🔗 Live Demo:** [cybermarkov.xyz](https://www.cybermarkov.xyz/)
