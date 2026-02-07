@@ -10,9 +10,7 @@
     />
   </head>
   <body>
-    {% if current_user.is_authenticated %}
-      {% include 'navbar.html' %}
-    {% endif %}
+    {% include 'navbar.html' %}
     <div class="container">
       <header class="hero">
         <h1 class="main-title">MDP Cyber-Attack Predictor</h1>
@@ -74,7 +72,8 @@
           <div class="feature-icon">🤖</div>
           <h3>ML-Powered Detection</h3>
           <p>
-            Random Forest classifiers trained on NSL-KDD dataset with 75% accuracy for attack type identification
+            Random Forest classifiers trained on NSL-KDD dataset with 75%
+            accuracy for attack type identification
           </p>
         </div>
 
@@ -82,15 +81,22 @@
           <div class="feature-icon">📤</div>
           <h3>Batch Analysis</h3>
           <p>
-            Upload and analyze large datasets with comprehensive statistics and visualizations
+            Upload and analyze large datasets with comprehensive statistics and
+            visualizations
           </p>
         </div>
       </section>
 
       <div class="cta-section">
-        <a href="{{ url_for('predict') }}" class="btn btn-primary">Quick Prediction</a>
-        <a href="{{ url_for('upload') }}" class="btn btn-primary">Batch Analysis</a>
-        <a href="{{ url_for('statistics') }}" class="btn btn-secondary">View Statistics</a>
+        <a href="{{ url_for('predict') }}" class="btn btn-primary"
+          >Quick Prediction</a
+        >
+        <a href="{{ url_for('upload') }}" class="btn btn-primary"
+          >Batch Analysis</a
+        >
+        <a href="{{ url_for('statistics') }}" class="btn btn-secondary"
+          >View Statistics</a
+        >
       </div>
     </div>
   </body>
