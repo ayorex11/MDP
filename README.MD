@@ -534,7 +534,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-**ADEWALE ADEWALE AYOMIDE** - *Project Lead* - [GitHub](https://github.com/ayorex11)
+**ADEWALE AYOMIDE AYOMIDE** - *Project Lead* - [GitHub](https://github.com/ayorex11)
 
 **Team Members:**
 - AROYEWUN OLUWATOBILOBA JOHN 
